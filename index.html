@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerar Resultados de Jogos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    #results {
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .clear-btn {
+      background-color: #dc3545;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gerar Resultados de Jogos</h1>
+  <button onclick="fetchGameResults()">Buscar Jogos</button>
+  <div id="results">Clique no botão acima para gerar os resultados.</div>
+  <button onclick="redirectToListPage()">Ir para Listas</button>
+  <script>
+    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b";
+    const apiUrl = "https://v3.football.api-sports.io/fixtures";
+    const gameCount = 5; // Número de jogos anteriores de cada time
+
+    async function fetchGameResults() {
+      const resultsDiv = document.getElementById("results");
+      resultsDiv.innerHTML = "Carregando jogos...";
+
+      const today = new Date().toISOString().split("T")[0];
+      const headers = {
+        "X-RapidAPI-Host": "v3.football.api-sports.io",
+        "X-RapidAPI-Key": apiKey
+      };
+
+      try {
+        const response = await fetch(`${apiUrl}?date=${today}`, { headers });
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar jogos: ${response.status}`);
+        }
+
+        const data = await response.json();
+        if (!data.response || data.response.length === 0) {
+          resultsDiv.innerHTML = "Nenhum jogo encontrado para hoje.";
+          return;
+        }
+
+        const results = await Promise.all(data.response.map(async (fixture) => {
+          const homeTeamId = fixture.teams.home.id;
+          const awayTeamId = fixture.teams.away.id;
+
+          const homeMatches = await fetchTeamLastMatches(homeTeamId);
+          const awayMatches = await fetchTeamLastMatches(awayTeamId);
+
+          if (homeMatches.length === 0 || awayMatches.length === 0) return null;
+
+          const combinedMatches = [...homeMatches, ...awayMatches];
+          const frequentMarkets = analyzeMarkets(combinedMatches);
+
+          return {
+            jogo: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
+            mercados: frequentMarkets
+          };
+        }));
+
+        const filteredResults = results.filter(result => result && result.mercados.length > 0);
+
+        if (filteredResults.length === 0) {
+          resultsDiv.innerHTML = "Nenhum mercado frequente encontrado para os jogos de hoje.";
+          return;
+        }
+
+        resultsDiv.innerHTML = filteredResults
+          .map(result => `<p>${result.jogo} - Mercados: ${result.mercados.join(", ")}</p>`)
+          .join("");
+
+        saveResultsToLocalStorage(filteredResults);
+
+      } catch (error) {
+        console.error("Erro ao buscar resultados:", error);
+        resultsDiv.innerHTML = "Erro ao carregar os jogos. Tente novamente.";
+      }
+    }
+
+    async function fetchTeamLastMatches(teamId) {
+      const headers = {
+        "X-RapidAPI-Host": "v3.football.api-sports.io",
+        "X-RapidAPI-Key": apiKey
+      };
+
+      try {
+        const response = await fetch(`${apiUrl}?team=${teamId}&status=FT&last=${gameCount}`, { headers });
+        if (!response.ok) {
+          throw new Error(`Erro ao buscar jogos do time ${teamId}: ${response.status}`);
+        }
+
+        const data = await response.json();
+        return data.response || [];
+      } catch (error) {
+        console.error("Erro ao buscar os jogos do time:", error);
+        return [];
+      }
+    }
+
+    function analyzeMarkets(matches) {
+      const marketCounts = { "+1.5": 0, "+2.5": 0, "Ambos Marcam": 0 };
+      matches.forEach(match => {
+        if (match.goals.home + match.goals.away >= 2) marketCounts["+1.5"]++;
+        if (match.goals.home + match.goals.away >= 3) marketCounts["+2.5"]++;
+        if (match.goals.home > 0 && match.goals.away > 0) marketCounts["Ambos Marcam"]++;
+      });
+
+      return Object.entries(marketCounts)
+        .filter(([_, count]) => (count / matches.length) >= 0.7)
+        .map(([market]) => market);
+    }
+
+    function saveResultsToLocalStorage(results) {
+      localStorage.setItem("gameResults", JSON.stringify(results));
+      alert("Os resultados foram enviados para a página Listas 4.0!");
+    }
+
+    function redirectToListPage() {
+      window.location.href = "listas4.0.html";
+    }
+  </script>
+</body>
+</html>

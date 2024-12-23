@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Listas 4.0</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background-color: #f0f0f0;
+    }
+    #resultList {
+      list-style: none;
+      padding: 0;
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: left;
+    }
+    #resultList li {
+      padding: 10px;
+      margin-bottom: 10px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+    button {
+      background-color: #007BFF;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .clear-btn {
+      background-color: #dc3545;
+      margin-top: 10px;
+    }
+    .clear-btn:hover {
+      background-color: #a71d2a;
+    }
+  </style>
+</head>
+<body>
+  <h1>Resultados dos Jogos</h1>
+  <ul id="resultList"></ul>
+  <button class="clear-btn" onclick="clearResults()">Limpar Resultados 🚮</button>
+  <script>
+    window.onload = function() {
+      const results = localStorage.getItem("gameResults");
+      if (results) {
+        const parsedResults = JSON.parse(results);
+        displayResults(parsedResults);
+      }
+    };
+
+    function displayResults(results) {
+      const listContainer = document.getElementById("resultList");
+      listContainer.innerHTML = ""; // Limpa lista anterior
+      results.forEach(result => {
+        const listItem = document.createElement("li");
+        listItem.textContent = `${result.jogo} - Mercados: ${result.mercados.join(", ")}`;
+        listContainer.appendChild(listItem);
+      });
+    }
+
+    function clearResults() {
+      localStorage.removeItem("gameResults");
+      const listContainer = document.getElementById("resultList");
+      listContainer.innerHTML = ""; // Limpa visualmente
+      alert("Resultados limpos!");
+    }
+  </script>
+</body>
+</html>
