@@ -3,87 +3,128 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Clubes da Série A 2025</title>
+  <title>Projeto 2.5 Gols</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #f0f2f5, #d9e2ec);
       margin: 0;
       padding: 0;
       color: #333;
     }
+
     header {
-      background-color: #222;
+      background-color: #1e3a8a;
       color: white;
       padding: 20px;
       text-align: center;
+      font-size: 2rem;
+      font-weight: bold;
+      text-shadow: 1px 1px 3px #00000040;
     }
-    header h1 {
+
+    .container {
+      max-width: 900px;
+      margin: 20px auto;
+      padding: 20px;
+      background-color: #ffffffcc;
+      border-radius: 15px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .team-list {
+      list-style: none;
+      padding: 0;
       margin: 0;
     }
-    #clubes {
+
+    .team-item {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin: 20px;
-    }
-    .card {
-      background-color: white;
+      align-items: center;
+      padding: 12px 15px;
+      margin-bottom: 10px;
       border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      margin: 15px;
-      width: 280px;
-      text-align: center;
-      overflow: hidden;
-      transition: transform 0.3s;
+      background-color: #f9fafb;
+      transition: transform 0.2s, background-color 0.2s;
+      cursor: default;
     }
-    .card:hover {
-      transform: scale(1.05);
+
+    .team-item:hover {
+      transform: translateX(5px);
+      background-color: #e0e7ff;
     }
-    .card img {
-      width: 100%;
-      height: 180px;
+
+    .team-item img {
+      width: 40px;
+      height: 40px;
       object-fit: cover;
+      border-radius: 50%;
+      margin-right: 15px;
+      border: 1px solid #ccc;
     }
-    .card h3 {
-      margin: 10px 0;
+
+    .team-name {
+      font-size: 1.2rem;
+      font-weight: 500;
     }
-    .card p {
-      margin: 5px 0;
-    }
+
     footer {
-      background-color: #222;
-      color: white;
       text-align: center;
-      padding: 15px 0;
+      padding: 15px;
+      font-size: 0.9rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
+  <header>Projeto 2.5 Gols</header>
 
-  <header>
-    <h1>Clubes da Série A do Campeonato Brasileiro 2025</h1>
-  </header>
+  <div class="container">
+    <ul class="team-list">
+      <li class="team-item">
+        <img src="https://www.countryflags.io/br/flat/64.png" alt="Botafogo F">
+        <span class="team-name">Botafogo F</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/lr/flat/64.png" alt="Libéria">
+        <span class="team-name">Libéria</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/fi/flat/64.png" alt="Finlândia">
+        <span class="team-name">Finlândia</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/ge/flat/64.png" alt="Geórgia">
+        <span class="team-name">Geórgia</span>
+      </li>
+      <li class="team-item">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d9/Beitar_Jerusalem_FC_logo.svg/1024px-Beitar_Jerusalem_FC_logo.svg.png" alt="Beitar">
+        <span class="team-name">Beitar</span>
+      </li>
+      <li class="team-item">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/6/64/Thor_L%C3%B8kke_Logo.svg/1024px-Thor_L%C3%B8kke_Logo.svg.png" alt="Thor">
+        <span class="team-name">Thor</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/at/flat/64.png" alt="Áustria">
+        <span class="team-name">Áustria</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/by/flat/64.png" alt="Bielorrússia">
+        <span class="team-name">Bielorrússia</span>
+      </li>
+      <li class="team-item">
+        <img src="https://www.countryflags.io/mt/flat/64.png" alt="Malta">
+        <span class="team-name">Malta</span>
+      </li>
+      <li class="team-item">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5a/Tucuman_FC_logo.svg/1024px-Tucuman_FC_logo.svg.png" alt="Tucumã 2">
+        <span class="team-name">Tucumã 2</span>
+      </li>
+    </ul>
+  </div>
 
-  <section id="clubes">
-    <!-- Exemplo de card de clube -->
-    <div class="card">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Maracan%C3%A3_2013.jpg/800px-Maracan%C3%A3_2013.jpg" alt="Maracanã">
-      <h3>Flamengo</h3>
-      <p><strong>Apelido:</strong> Mengão</p>
-      <p><strong>Cidade:</strong> Rio de Janeiro - RJ</p>
-      <p><strong>Fundação:</strong> 1895</p>
-      <p><strong>Estádio:</strong> Maracanã</p>
-      <p><strong>Títulos Nacionais:</strong> 8</p>
-      <p><strong>Títulos Internacionais:</strong> 2</p>
-    </div>
-
-    <!-- Outros cards de clubes podem ser adicionados aqui -->
-  </section>
-
-  <footer>
-    <p>&copy; 2025 - Todos os direitos reservados</p>
-  </footer>
-
+  <footer>⚽ Resultados baseados no Projeto 2.5 Gols</footer>
 </body>
 </html>
