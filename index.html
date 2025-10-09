@@ -5,13 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogos de Hoje</title>
   <style>
-    /* Reset e estilo base */
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       background: linear-gradient(to right, #1e3c72, #2a5298);
@@ -23,29 +17,27 @@
       padding: 20px;
     }
 
-    /* Título principal */
     h1 {
       font-size: 3rem;
       font-weight: 700;
       text-align: center;
-      margin-bottom: 10px;
+      margin-bottom: 5px;
       text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     }
 
     h2 {
+      font-size: 1.5rem;
       text-align: center;
-      margin-bottom: 20px;
-      font-weight: 400;
       color: #ffd700;
+      margin-bottom: 20px;
       text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
     }
 
-    /* Botão atualizar */
     .btn-refresh {
       background-color: #ff9800;
       color: #fff;
       border: none;
-      padding: 10px 20px;
+      padding: 10px 25px;
       font-size: 1rem;
       border-radius: 25px;
       cursor: pointer;
@@ -59,7 +51,6 @@
       transform: scale(1.05);
     }
 
-    /* Container de jogos */
     #games {
       width: 100%;
       max-width: 900px;
@@ -68,7 +59,6 @@
       gap: 15px;
     }
 
-    /* Cards de jogos */
     .game {
       display: flex;
       flex-direction: column;
@@ -79,17 +69,9 @@
       transition: transform 0.2s, background 0.3s;
     }
 
-    .game:hover {
-      transform: scale(1.02);
-      background: rgba(255,255,255,0.2);
-    }
+    .game:hover { transform: scale(1.02); background: rgba(255,255,255,0.2); }
 
-    .league {
-      font-weight: bold;
-      font-size: 1.2rem;
-      color: #ffd700;
-      margin-bottom: 10px;
-    }
+    .league { font-weight: bold; font-size: 1.2rem; color: #ffd700; margin-bottom: 10px; }
 
     .teams {
       display: flex;
@@ -107,56 +89,18 @@
       width: 100px;
     }
 
-    .team img {
-      width: 60px;
-      height: 60px;
-      object-fit: contain;
-      margin-bottom: 5px;
-    }
+    .team img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
+    .score { font-size: 1.4rem; font-weight: bold; }
+    .status { font-size: 0.9rem; color: #ffe; }
+    .live { color: #ff4d4d; font-weight: bold; }
 
-    .score {
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
+    .no-games { text-align: center; color: #fff; font-size: 1.5rem; margin-top: 50px; }
 
-    .status {
-      font-size: 0.9rem;
-      color: #ffe;
-    }
-
-    .live {
-      color: #ff4d4d;
-      font-weight: bold;
-    }
-
-    .no-games {
-      text-align: center;
-      color: #fff;
-      font-size: 1.5rem;
-      margin-top: 50px;
-    }
-
-    /* Responsividade */
-    @media(max-width: 600px){
-      .teams {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .team {
-        flex-direction: row;
-        justify-content: space-between;
-        width: 80%;
-      }
-
-      .team img {
-        width: 50px;
-        height: 50px;
-      }
-
-      .score {
-        font-size: 1.2rem;
-      }
+    @media(max-width:600px){
+      .teams { flex-direction: column; align-items: center; }
+      .team { flex-direction: row; justify-content: space-between; width: 80%; }
+      .team img { width: 50px; height: 50px; }
+      .score { font-size: 1.2rem; }
     }
   </style>
 </head>
@@ -170,6 +114,7 @@
     const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b";
     const apiUrl = "https://v3.football.api-sports.io/fixtures";
     const today = new Date().toISOString().split("T")[0];
+
     const headers = {
       "X-RapidAPI-Host": "v3.football.api-sports.io",
       "X-RapidAPI-Key": apiKey
@@ -180,9 +125,11 @@
       gamesDiv.innerHTML = "<p>Carregando jogos...</p>";
 
       try {
-        const response = await fetch(`${apiUrl}?date=${today}`, { headers });
+        const response = await fetch(`${apiUrl}?date=${today}&timezone=America/Sao_Paulo`, { headers });
         if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
         const data = await response.json();
+        console.log("Resposta da API:", data);
+
         gamesDiv.innerHTML = "";
 
         if (!data.response || data.response.length === 0) {
@@ -200,6 +147,7 @@
 
           const league = fixture.league?.name || "Competição Desconhecida";
           const country = fixture.league?.country ? `(${fixture.league.country})` : "";
+
           const home = fixture.teams?.home?.name || "Time A";
           const away = fixture.teams?.away?.name || "Time B";
           const homeLogo = fixture.teams?.home?.logo || "";
@@ -209,8 +157,9 @@
 
           const date = new Date(fixture.fixture.date);
           const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
           const status = fixture.fixture.status?.short || "NS";
-          const isLive = ["1H", "2H", "LIVE"].includes(status);
+          const isLive = ["1H","2H","LIVE"].includes(status);
           const statusText = isLive
             ? `<span class="live">AO VIVO</span>`
             : status === "FT"
@@ -235,9 +184,9 @@
             </div>
             <div class="status">Status: ${statusText}</div>
           `;
-
           gamesDiv.appendChild(gameDiv);
         });
+
       } catch (error) {
         console.error("Erro ao buscar os jogos:", error);
         gamesDiv.innerHTML = "<p class='no-games'>Erro ao carregar os jogos. Tente novamente mais tarde.</p>";
@@ -245,7 +194,7 @@
     }
 
     fetchGames();
-    setInterval(fetchGames, 300000); // Atualiza a cada 5 minutos
+    setInterval(fetchGames, 300000);
   </script>
 </body>
 </html>
