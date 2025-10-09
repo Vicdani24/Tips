@@ -5,196 +5,146 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogos de Hoje</title>
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(to right, #1e3c72, #2a5298);
-      color: #fff;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+      color: #333;
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
     }
-
     h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 5px;
-      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+      margin-top: 20px;
+      color: #2c3e50;
     }
-
-    h2 {
-      font-size: 1.5rem;
-      text-align: center;
-      color: #ffd700;
-      margin-bottom: 20px;
-      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
-    }
-
-    .btn-refresh {
-      background-color: #ff9800;
-      color: #fff;
-      border: none;
-      padding: 10px 25px;
-      font-size: 1rem;
-      border-radius: 25px;
-      cursor: pointer;
-      margin-bottom: 20px;
-      transition: background 0.3s, transform 0.2s;
-      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
-    }
-
-    .btn-refresh:hover {
-      background-color: #e68900;
-      transform: scale(1.05);
-    }
-
     #games {
-      width: 100%;
+      width: 90%;
       max-width: 900px;
+      margin-top: 20px;
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
-
     .game {
-      display: flex;
-      flex-direction: column;
-      background: rgba(255,255,255,0.1);
-      border-radius: 15px;
+      background-color: #fff;
       padding: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-      transition: transform 0.2s, background 0.3s;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-
-    .game:hover { transform: scale(1.02); background: rgba(255,255,255,0.2); }
-
-    .league { font-weight: bold; font-size: 1.2rem; color: #ffd700; margin-bottom: 10px; }
-
+    .game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .game-header h2 {
+      margin: 0;
+      font-size: 1.2rem;
+      color: #3498db;
+    }
+    .game-header span {
+      font-size: 1rem;
+      color: #7f8c8d;
+    }
     .teams {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      font-size: 1.1rem;
-      margin-bottom: 10px;
+      margin-top: 10px;
     }
-
     .team {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      width: 100px;
+      text-align: center;
     }
-
-    .team img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
-    .score { font-size: 1.4rem; font-weight: bold; }
-    .status { font-size: 0.9rem; color: #ffe; }
-    .live { color: #ff4d4d; font-weight: bold; }
-
-    .no-games { text-align: center; color: #fff; font-size: 1.5rem; margin-top: 50px; }
-
-    @media(max-width:600px){
-      .teams { flex-direction: column; align-items: center; }
-      .team { flex-direction: row; justify-content: space-between; width: 80%; }
-      .team img { width: 50px; height: 50px; }
-      .score { font-size: 1.2rem; }
+    .team img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+    }
+    .score {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 5px;
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 0.9rem;
+      color: #e74c3c;
+    }
+    .no-games {
+      text-align: center;
+      color: #e74c3c;
+      font-size: 1.2rem;
     }
   </style>
 </head>
 <body>
   <h1>⚽ Jogos de Hoje</h1>
-  <h2>Acompanhe todos os jogos do dia</h2>
-  <button class="btn-refresh" onclick="fetchGames()">🔄 Atualizar Jogos</button>
   <div id="games">Carregando jogos...</div>
 
   <script>
-    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b";
-    const apiUrl = "https://v3.football.api-sports.io/fixtures";
-    const today = new Date().toISOString().split("T")[0];
-
-    const headers = {
-      "X-RapidAPI-Host": "v3.football.api-sports.io",
-      "X-RapidAPI-Key": apiKey
-    };
+    const apiUrl = 'https://api.api-futebol.com.br/v1/games';
+    const apiToken = 'live_c02490d0118fb343fddd6cd2d94487'; // Sua chave já incluída
 
     async function fetchGames() {
-      const gamesDiv = document.getElementById("games");
-      gamesDiv.innerHTML = "<p>Carregando jogos...</p>";
+      const gamesDiv = document.getElementById('games');
+      gamesDiv.innerHTML = 'Carregando jogos...';
 
       try {
-        const response = await fetch(`${apiUrl}?date=${today}&timezone=America/Sao_Paulo`, { headers });
-        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+        const today = new Date().toISOString().split('T')[0];
+        const response = await fetch(`${apiUrl}?date=${today}`, {
+          headers: {
+            'Authorization': `Bearer ${apiToken}`
+          }
+        });
+
+        if (!response.ok) throw new Error('Erro ao buscar os jogos');
+
         const data = await response.json();
-        console.log("Resposta da API:", data);
 
-        gamesDiv.innerHTML = "";
-
-        if (!data.response || data.response.length === 0) {
-          gamesDiv.innerHTML = "<p class='no-games'>Não há jogos agendados para hoje.</p>";
+        if (!data || data.length === 0) {
+          gamesDiv.innerHTML = '<p class="no-games">Não há jogos agendados para hoje.</p>';
           return;
         }
 
-        const fixtures = data.response.sort((a, b) =>
-          new Date(a.fixture.date) - new Date(b.fixture.date)
-        );
+        gamesDiv.innerHTML = '';
 
-        fixtures.forEach(fixture => {
-          const gameDiv = document.createElement("div");
-          gameDiv.className = "game";
+        data.forEach(game => {
+          const gameDiv = document.createElement('div');
+          gameDiv.className = 'game';
 
-          const league = fixture.league?.name || "Competição Desconhecida";
-          const country = fixture.league?.country ? `(${fixture.league.country})` : "";
-
-          const home = fixture.teams?.home?.name || "Time A";
-          const away = fixture.teams?.away?.name || "Time B";
-          const homeLogo = fixture.teams?.home?.logo || "";
-          const awayLogo = fixture.teams?.away?.logo || "";
-          const homeScore = fixture.goals?.home ?? "-";
-          const awayScore = fixture.goals?.away ?? "-";
-
-          const date = new Date(fixture.fixture.date);
-          const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
-          const status = fixture.fixture.status?.short || "NS";
-          const isLive = ["1H","2H","LIVE"].includes(status);
-          const statusText = isLive
-            ? `<span class="live">AO VIVO</span>`
-            : status === "FT"
-            ? "Encerrado"
-            : status === "NS"
-            ? `Inicia às ${time}`
-            : status;
+          const gameDate = new Date(game.date);
+          const gameTime = gameDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
           gameDiv.innerHTML = `
-            <div class="league">${league} ${country}</div>
+            <div class="game-header">
+              <h2>${game.competition.name}</h2>
+              <span>${gameTime}</span>
+            </div>
             <div class="teams">
               <div class="team">
-                <img src="${homeLogo}" alt="${home}">
-                <span>${home}</span>
-                <span class="score">${homeScore}</span>
+                <img src="${game.homeTeam.logo}" alt="${game.homeTeam.name}">
+                <div>${game.homeTeam.name}</div>
+                <div class="score">${game.homeTeam.score}</div>
               </div>
               <div class="team">
-                <img src="${awayLogo}" alt="${away}">
-                <span>${away}</span>
-                <span class="score">${awayScore}</span>
+                <img src="${game.awayTeam.logo}" alt="${game.awayTeam.name}">
+                <div>${game.awayTeam.name}</div>
+                <div class="score">${game.awayTeam.score}</div>
               </div>
             </div>
-            <div class="status">Status: ${statusText}</div>
+            <div class="status">${game.status}</div>
           `;
+
           gamesDiv.appendChild(gameDiv);
         });
-
       } catch (error) {
-        console.error("Erro ao buscar os jogos:", error);
-        gamesDiv.innerHTML = "<p class='no-games'>Erro ao carregar os jogos. Tente novamente mais tarde.</p>";
+        console.error('Erro ao buscar os jogos:', error);
+        gamesDiv.innerHTML = '<p class="no-games">Erro ao carregar os jogos. Tente novamente mais tarde.</p>';
       }
     }
 
     fetchGames();
-    setInterval(fetchGames, 300000);
+    setInterval(fetchGames, 300000); // Atualiza a cada 5 minutos
   </script>
 </body>
 </html>
