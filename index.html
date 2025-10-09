@@ -5,115 +5,171 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jogos de Hoje</title>
   <style>
+    /* Reset e estilo base */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      background-color: #f4f4f9;
-      color: #333;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #1e3c72, #2a5298);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
 
+    /* Título principal */
     h1 {
+      font-size: 3rem;
+      font-weight: 700;
       text-align: center;
-      color: #222;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 5px rgba(0,0,0,0.5);
     }
 
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: 400;
+      color: #ffd700;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+    }
+
+    /* Botão atualizar */
+    .btn-refresh {
+      background-color: #ff9800;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 25px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background 0.3s, transform 0.2s;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+    }
+
+    .btn-refresh:hover {
+      background-color: #e68900;
+      transform: scale(1.05);
+    }
+
+    /* Container de jogos */
     #games {
+      width: 100%;
+      max-width: 900px;
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
 
+    /* Cards de jogos */
     .game {
       display: flex;
-      align-items: center;
-      justify-content: space-between;
+      flex-direction: column;
+      background: rgba(255,255,255,0.1);
+      border-radius: 15px;
       padding: 15px;
-      border-radius: 10px;
-      background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s, background 0.3s;
     }
 
     .game:hover {
       transform: scale(1.02);
+      background: rgba(255,255,255,0.2);
     }
 
     .league {
       font-weight: bold;
-      color: #007bff;
-      margin-bottom: 5px;
+      font-size: 1.2rem;
+      color: #ffd700;
+      margin-bottom: 10px;
     }
 
     .teams {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      font-size: 1.1em;
+      font-size: 1.1rem;
+      margin-bottom: 10px;
     }
 
     .team {
       display: flex;
       flex-direction: column;
       align-items: center;
-      width: 80px;
+      width: 100px;
     }
 
     .team img {
-      width: 50px;
-      height: 50px;
+      width: 60px;
+      height: 60px;
       object-fit: contain;
       margin-bottom: 5px;
     }
 
     .score {
-      font-size: 1.2em;
+      font-size: 1.4rem;
       font-weight: bold;
     }
 
     .status {
-      font-size: 0.9em;
-      color: #666;
-      margin-top: 5px;
+      font-size: 0.9rem;
+      color: #ffe;
     }
 
     .live {
-      color: #d9534f;
+      color: #ff4d4d;
       font-weight: bold;
     }
 
     .no-games {
       text-align: center;
-      color: #555;
-      font-size: 1.2em;
+      color: #fff;
+      font-size: 1.5rem;
       margin-top: 50px;
     }
 
-    @media(max-width:600px){
+    /* Responsividade */
+    @media(max-width: 600px){
       .teams {
         flex-direction: column;
+        align-items: center;
       }
+
       .team {
-        width: 100%;
         flex-direction: row;
         justify-content: space-between;
+        width: 80%;
       }
+
       .team img {
-        width: 40px;
-        height: 40px;
+        width: 50px;
+        height: 50px;
+      }
+
+      .score {
+        font-size: 1.2rem;
       }
     }
   </style>
 </head>
 <body>
   <h1>⚽ Jogos de Hoje</h1>
+  <h2>Acompanhe todos os jogos do dia</h2>
+  <button class="btn-refresh" onclick="fetchGames()">🔄 Atualizar Jogos</button>
   <div id="games">Carregando jogos...</div>
 
   <script>
-    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b"; // sua chave API
+    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b";
     const apiUrl = "https://v3.football.api-sports.io/fixtures";
     const today = new Date().toISOString().split("T")[0];
-
     const headers = {
       "X-RapidAPI-Host": "v3.football.api-sports.io",
       "X-RapidAPI-Key": apiKey
@@ -125,9 +181,7 @@
 
       try {
         const response = await fetch(`${apiUrl}?date=${today}`, { headers });
-
         if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
-
         const data = await response.json();
         gamesDiv.innerHTML = "";
 
@@ -146,19 +200,15 @@
 
           const league = fixture.league?.name || "Competição Desconhecida";
           const country = fixture.league?.country ? `(${fixture.league.country})` : "";
-
           const home = fixture.teams?.home?.name || "Time A";
           const away = fixture.teams?.away?.name || "Time B";
-
           const homeLogo = fixture.teams?.home?.logo || "";
           const awayLogo = fixture.teams?.away?.logo || "";
-
           const homeScore = fixture.goals?.home ?? "-";
           const awayScore = fixture.goals?.away ?? "-";
 
           const date = new Date(fixture.fixture.date);
           const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
-
           const status = fixture.fixture.status?.short || "NS";
           const isLive = ["1H", "2H", "LIVE"].includes(status);
           const statusText = isLive
@@ -170,22 +220,20 @@
             : status;
 
           gameDiv.innerHTML = `
-            <div>
-              <div class="league">${league} ${country}</div>
-              <div class="teams">
-                <div class="team">
-                  <img src="${homeLogo}" alt="${home}">
-                  <span>${home}</span>
-                  <span class="score">${homeScore}</span>
-                </div>
-                <div class="team">
-                  <img src="${awayLogo}" alt="${away}">
-                  <span>${away}</span>
-                  <span class="score">${awayScore}</span>
-                </div>
+            <div class="league">${league} ${country}</div>
+            <div class="teams">
+              <div class="team">
+                <img src="${homeLogo}" alt="${home}">
+                <span>${home}</span>
+                <span class="score">${homeScore}</span>
               </div>
-              <div class="status">Status: ${statusText}</div>
+              <div class="team">
+                <img src="${awayLogo}" alt="${away}">
+                <span>${away}</span>
+                <span class="score">${awayScore}</span>
+              </div>
             </div>
+            <div class="status">Status: ${statusText}</div>
           `;
 
           gamesDiv.appendChild(gameDiv);
