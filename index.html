@@ -1,150 +1,228 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jogos de Hoje</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    h1 {
-      margin-top: 20px;
-      color: #2c3e50;
-    }
-    #games {
-      width: 90%;
-      max-width: 900px;
-      margin-top: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-    }
-    .game {
-      background-color: #fff;
-      padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .game-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .game-header h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: #3498db;
-    }
-    .game-header span {
-      font-size: 1rem;
-      color: #7f8c8d;
-    }
-    .teams {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 10px;
-    }
-    .team {
-      text-align: center;
-    }
-    .team img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-    }
-    .score {
-      font-size: 1.5rem;
-      font-weight: bold;
-      margin-top: 5px;
-    }
-    .status {
-      margin-top: 10px;
-      font-size: 0.9rem;
-      color: #e74c3c;
-    }
-    .no-games {
-      text-align: center;
-      color: #e74c3c;
-      font-size: 1.2rem;
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Jogos de Hoje — Multi‑Fonte (TheSportsDB + Scorebat)</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family: "Segoe UI", Roboto, Arial, sans-serif;
+    background: linear-gradient(135deg,#0f172a 0%, #12243a 100%);
+    color:#fff; min-height:100vh; padding:28px; display:flex; flex-direction:column; align-items:center;
+  }
+  header{ text-align:center; margin-bottom:18px; }
+  h1{ font-size:2.6rem; letter-spacing:1px; margin-bottom:6px; text-shadow:0 6px 18px rgba(0,0,0,0.6);}
+  h2{ color:#ffd166; font-weight:600; margin-bottom:12px; font-size:1.05rem }
+  .controls{ margin-bottom:18px; display:flex; gap:10px; align-items:center; }
+  .btn{ background:#ff7a00; color:#fff; border:0; padding:10px 16px; border-radius:999px; cursor:pointer; box-shadow:0 6px 20px rgba(0,0,0,0.35)}
+  .btn.secondary{ background:transparent; border:1px solid rgba(255,255,255,0.12); }
+  #games{ width:100%; max-width:980px; display:flex; flex-direction:column; gap:14px; }
+  .card{
+    background:linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+    border-radius:12px; padding:14px; box-shadow:0 8px 28px rgba(2,6,23,0.6); display:flex; flex-direction:column;
+  }
+  .league{ color:#ffd166; font-weight:700; margin-bottom:8px }
+  .row{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .team{ display:flex; align-items:center; gap:10px; min-width:30%; }
+  .team .name{ font-weight:600; }
+  .score{ font-size:1.25rem; font-weight:800; }
+  .time{ color:#cbd5e1; font-size:0.95rem }
+  .status{ margin-top:8px; color:#9ca3af; font-size:0.9rem }
+  .no-games{ text-align:center; padding:28px; color:#ffd4d4; font-weight:700; border-radius:10px; background:rgba(255,255,255,0.02) }
+  @media(max-width:720px){
+    .row{ flex-direction:column; align-items:flex-start; gap:6px; }
+    .team{ width:100%; justify-content:space-between; }
+  }
+</style>
 </head>
 <body>
-  <h1>⚽ Jogos de Hoje</h1>
-  <div id="games">Carregando jogos...</div>
+  <header>
+    <h1>⚽ Jogos de Hoje</h1>
+    <h2>Acompanhamento mundial — seleções, clubes, amistosos e campeonatos</h2>
+    <div class="controls">
+      <button class="btn" id="refreshBtn">🔄 Atualizar</button>
+      <button class="btn secondary" id="debugBtn">Mostrar logs (console)</button>
+    </div>
+  </header>
 
-  <script>
-    const apiUrl = 'https://api.api-futebol.com.br/v1/games';
-    const apiToken = 'live_c02490d0118fb343fddd6cd2d94487'; // Sua chave já incluída
+  <main id="games">Carregando jogos...</main>
 
-    async function fetchGames() {
-      const gamesDiv = document.getElementById('games');
-      gamesDiv.innerHTML = 'Carregando jogos...';
+<script>
+/*
+  Estratégia:
+  1) Tenta TheSportsDB (v1, chave de teste '3') -> endpoint eventsday.php (eventos do dia).
+  2) Se vazio, tenta Scorebat (feed gratuito de lives/fixtures).
+  3) Renderiza os jogos encontrados (liga, hora, times, placar/status).
+  Observação: cobertura e formato variam por fonte; TheSportsDB pode exigir conta/upgrade para alguns endpoints.
+  Fontes: TheSportsDB (v1 free), Scorebat (video/livescore). (ver referências)
+*/
 
-      try {
-        const today = new Date().toISOString().split('T')[0];
-        const response = await fetch(`${apiUrl}?date=${today}`, {
-          headers: {
-            'Authorization': `Bearer ${apiToken}`
-          }
-        });
+const gamesDiv = document.getElementById('games');
+const refreshBtn = document.getElementById('refreshBtn');
+const debugBtn = document.getElementById('debugBtn');
 
-        if (!response.ok) throw new Error('Erro ao buscar os jogos');
+const todayISO = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
-        const data = await response.json();
+refreshBtn.addEventListener('click', fetchAllSources);
+debugBtn.addEventListener('click', () => {
+  alert('Abra o Console do navegador (F12 → Console) para ver os logs das APIs.');
+});
 
-        if (!data || data.length === 0) {
-          gamesDiv.innerHTML = '<p class="no-games">Não há jogos agendados para hoje.</p>';
-          return;
-        }
+function showMessage(msgHtml) {
+  gamesDiv.innerHTML = msgHtml;
+}
 
-        gamesDiv.innerHTML = '';
+function renderGames(list) {
+  if (!list || list.length === 0) {
+    showMessage(`<div class="no-games">Nenhum jogo encontrado nas fontes hoje.</div>`);
+    return;
+  }
+  gamesDiv.innerHTML = '';
+  list.forEach(g => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const leagueHtml = `<div class="league">${escapeHtml(g.league || 'Competição desconhecida')}</div>`;
+    const rowHtml =
+      `<div class="row">
+         <div class="team"><div class="name">${escapeHtml(g.home)}</div></div>
+         <div class="score">${g.homeScore !== null ? g.homeScore : '-' } &nbsp; — &nbsp; ${g.awayScore !== null ? g.awayScore : '-'}</div>
+         <div class="team"><div class="name">${escapeHtml(g.away)}</div></div>
+       </div>
+       <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+         <div class="time">${escapeHtml(g.time || '')}</div>
+         <div class="status">${escapeHtml(g.status || '')}</div>
+       </div>`;
+    card.innerHTML = leagueHtml + rowHtml;
+    gamesDiv.appendChild(card);
+  });
+}
 
-        data.forEach(game => {
-          const gameDiv = document.createElement('div');
-          gameDiv.className = 'game';
+// simples escape para evitar injeção quando renderizar strings vindas de APIs
+function escapeHtml(s){ return (s+ '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-          const gameDate = new Date(game.date);
-          const gameTime = gameDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+/* ---------- Fonte 1: TheSportsDB (v1 free key = 3) ----------
+   endpoint (v1): /api/v1/json/3/eventsday.php?d=YYYY-MM-DD&s=Soccer
+   devolve JSON { events: [...] } quando há partidas
+   docs: https://www.thesportsdb.com/documentation
+*/
+async function fetchFromTheSportsDB(dateISO) {
+  try {
+    const key = '3'; // test key (free)
+    // filtra para Soccer (futebol) — remove se quiser outros esportes
+    const url = `https://www.thesportsdb.com/api/v1/json/${key}/eventsday.php?d=${dateISO}&s=Soccer`;
+    const res = await fetch(url);
+    const json = await res.json();
+    console.log('TheSportsDB response:', json);
+    if (!json || !json.events) return [];
+    // mapear para nosso formato
+    return json.events.map(ev => ({
+      league: ev.strLeague || ev.strCompetition || '',
+      home: ev.strHomeTeam || ev.strEvent?.split(' vs ')[0] || 'Casa',
+      away: ev.strAwayTeam || ev.strEvent?.split(' vs ')[1] || 'Visitante',
+      homeScore: ev.intHomeScore !== undefined && ev.intHomeScore !== null ? ev.intHomeScore : (ev.intHomeScore === null ? null : ev.intHomeScore),
+      awayScore: ev.intAwayScore !== undefined && ev.intAwayScore !== null ? ev.intAwayScore : (ev.intAwayScore === null ? null : ev.intAwayScore),
+      // TheSportsDB fornece dateEvent e strTime (strings). Vamos formatar hora local.
+      time: formatEventTime(ev.dateEvent, ev.strTime),
+      status: ev.strStatus || ev.strResult || (ev.intHomeScore !== null ? 'Finalizado' : 'Aguardando')
+    }));
+  } catch (e) {
+    console.error('Erro TheSportsDB', e);
+    return [];
+  }
+}
 
-          gameDiv.innerHTML = `
-            <div class="game-header">
-              <h2>${game.competition.name}</h2>
-              <span>${gameTime}</span>
-            </div>
-            <div class="teams">
-              <div class="team">
-                <img src="${game.homeTeam.logo}" alt="${game.homeTeam.name}">
-                <div>${game.homeTeam.name}</div>
-                <div class="score">${game.homeTeam.score}</div>
-              </div>
-              <div class="team">
-                <img src="${game.awayTeam.logo}" alt="${game.awayTeam.name}">
-                <div>${game.awayTeam.name}</div>
-                <div class="score">${game.awayTeam.score}</div>
-              </div>
-            </div>
-            <div class="status">${game.status}</div>
-          `;
-
-          gamesDiv.appendChild(gameDiv);
-        });
-      } catch (error) {
-        console.error('Erro ao buscar os jogos:', error);
-        gamesDiv.innerHTML = '<p class="no-games">Erro ao carregar os jogos. Tente novamente mais tarde.</p>';
+/* ---------- Fonte 2: Scorebat (JSON / livescores / videos) ----------
+   Scorebat tem feeds gratuitos com livescores/highlights. Ex.: https://www.scorebat.com/video-api/ (consulta via JSON)
+   Usaremos https://www.scorebat.com/fixtures/ (pode retornar HTML) ou /video-api/ para highlights.
+   Aqui tentamos /videos endpoint público (scorebat fornece JSON com partidas recentes)
+*/
+async function fetchFromScorebat() {
+  try {
+    // endpoint público de Scorebat com vídeo/highlights (retorna array)
+    const url = 'https://www.scorebat.com/video-api/v3/';
+    const res = await fetch(url);
+    // alguns endpoints do scorebat requerem CORS; pode falhar no browser. Capturamos erro.
+    const json = await res.json();
+    console.log('Scorebat response:', json);
+    if (!json || !Array.isArray(json)) {
+      // V3 pode ter outro formato; tentar extrair lista
+      if (json && json.response) {
+        // mapear caso diferente
+        return json.response.map(item => ({
+          league: item.competition || item.title || '',
+          home: item.side1 || (item.title ? item.title.split(' - ')[0] : 'Casa'),
+          away: item.side2 || (item.title ? item.title.split(' - ')[1] : 'Visitante'),
+          homeScore: item.home_score ?? null,
+          awayScore: item.away_score ?? null,
+          time: item.match_date ? new Date(item.match_date).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '',
+          status: item.match_status || ''
+        }));
       }
+      return [];
     }
+    // formatação básica (depende do que Scorebat retornar)
+    return json.map(it => ({
+      league: it.competition || it.title || '',
+      home: it.side1 || (it.title ? it.title.split(' - ')[0] : 'Casa'),
+      away: it.side2 || (it.title ? it.title.split(' - ')[1] : 'Visitante'),
+      homeScore: it.home_score ?? null,
+      awayScore: it.away_score ?? null,
+      time: it.match_date ? new Date(it.match_date).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '',
+      status: it.match_status || ''
+    }));
+  } catch (e) {
+    console.warn('Scorebat fetch falhou (pode ser CORS ou endpoint diferente)', e);
+    return [];
+  }
+}
 
-    fetchGames();
-    setInterval(fetchGames, 300000); // Atualiza a cada 5 minutos
-  </script>
+/* ---------- util: formatar hora (combina dateEvent + strTime da TheSportsDB) ---------- */
+function formatEventTime(dateEvent, strTime){
+  try{
+    if(!dateEvent) return '';
+    // strTime costuma ser 'HH:MM:SS' ou 'HH:MM:SS+00:00' — vamos criar ISO e converter para local
+    const tm = (strTime && strTime.length>0) ? strTime.split(' ')[0] : '00:00:00';
+    const iso = `${dateEvent}T${tm}Z`; // interpretar como UTC se sem fuso; pode variar por fonte
+    const d = new Date(iso);
+    if (isNaN(d)) {
+      // fallback: usar dateEvent + strTime sem Z
+      const alt = new Date(`${dateEvent}T${tm}`);
+      return isNaN(alt) ? `${dateEvent}` : alt.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    }
+    return d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    return '';
+  }
+}
+
+/* ---------- Fluxo principal: tenta TheSportsDB → se vazio tenta Scorebat ---------- */
+async function fetchAllSources(){
+  showMessage('Carregando jogos...');
+  // 1) TheSportsDB
+  const tsdb = await fetchFromTheSportsDB(todayISO);
+  if (tsdb && tsdb.length>0){
+    console.log(`TheSportsDB retornou ${tsdb.length} jogos`);
+    renderGames(tsdb);
+    return;
+  }
+  console.log('TheSportsDB retornou vazio. Tentando Scorebat como fallback.');
+  // 2) Scorebat
+  const sb = await fetchFromScorebat();
+  if (sb && sb.length>0){
+    console.log(`Scorebat retornou ${sb.length} eventos`);
+    renderGames(sb);
+    return;
+  }
+  // 3) nenhum
+  showMessage(`<div class="no-games">Nenhum jogo encontrado hoje nas fontes públicas (TheSportsDB / Scorebat).<br>
+    Você pode usar uma API profissional (API‑Football / API‑Sports) com conta e chave para cobertura mais completa.</div>`);
+}
+
+fetchAllSources();
+// atualiza a cada 5 minutos
+setInterval(fetchAllSources, 300000);
+
+</script>
 </body>
 </html>
