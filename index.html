@@ -3,148 +3,201 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gerar Resultados de Jogos</title>
+  <title>Jogos de Hoje</title>
   <style>
     body {
       font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+      color: #333;
+    }
+
+    h1 {
       text-align: center;
-      padding: 20px;
-      background-color: #f0f0f0;
+      color: #222;
+      margin-bottom: 20px;
     }
-    #results {
-      margin: 20px auto;
-      padding: 20px;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    #games {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
     }
-    button {
-      background-color: #007BFF;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
+
+    .game {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px;
+      border-radius: 10px;
+      background: #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
     }
-    button:hover {
-      background-color: #0056b3;
+
+    .game:hover {
+      transform: scale(1.02);
     }
-    .clear-btn {
-      background-color: #dc3545;
-      margin-top: 10px;
+
+    .league {
+      font-weight: bold;
+      color: #007bff;
+      margin-bottom: 5px;
+    }
+
+    .teams {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1.1em;
+    }
+
+    .team {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 80px;
+    }
+
+    .team img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      margin-bottom: 5px;
+    }
+
+    .score {
+      font-size: 1.2em;
+      font-weight: bold;
+    }
+
+    .status {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 5px;
+    }
+
+    .live {
+      color: #d9534f;
+      font-weight: bold;
+    }
+
+    .no-games {
+      text-align: center;
+      color: #555;
+      font-size: 1.2em;
+      margin-top: 50px;
+    }
+
+    @media(max-width:600px){
+      .teams {
+        flex-direction: column;
+      }
+      .team {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+      }
+      .team img {
+        width: 40px;
+        height: 40px;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>Gerar Resultados de Jogos</h1>
-  <button onclick="fetchGameResults()">Buscar Jogos</button>
-  <div id="results">Clique no botão acima para gerar os resultados.</div>
-  <button onclick="redirectToListPage()">Ir para Listas</button>
+  <h1>⚽ Jogos de Hoje</h1>
+  <div id="games">Carregando jogos...</div>
+
   <script>
-    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b";
+    const apiKey = "eec454bd8e0651ad7b01e6a08e9bf96b"; // sua chave API
     const apiUrl = "https://v3.football.api-sports.io/fixtures";
-    const gameCount = 10; // Número de jogos anteriores de cada time
+    const today = new Date().toISOString().split("T")[0];
 
-    async function fetchGameResults() {
-      const resultsDiv = document.getElementById("results");
-      resultsDiv.innerHTML = "Carregando jogos...";
+    const headers = {
+      "X-RapidAPI-Host": "v3.football.api-sports.io",
+      "X-RapidAPI-Key": apiKey
+    };
 
-      const today = new Date().toISOString().split("T")[0];
-      const headers = {
-        "X-RapidAPI-Host": "v3.football.api-sports.io",
-        "X-RapidAPI-Key": apiKey
-      };
+    async function fetchGames() {
+      const gamesDiv = document.getElementById("games");
+      gamesDiv.innerHTML = "<p>Carregando jogos...</p>";
 
       try {
         const response = await fetch(`${apiUrl}?date=${today}`, { headers });
-        if (!response.ok) {
-          throw new Error(`Erro ao buscar jogos: ${response.status}`);
-        }
+
+        if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
 
         const data = await response.json();
+        gamesDiv.innerHTML = "";
+
         if (!data.response || data.response.length === 0) {
-          resultsDiv.innerHTML = "Nenhum jogo encontrado para hoje.";
+          gamesDiv.innerHTML = "<p class='no-games'>Não há jogos agendados para hoje.</p>";
           return;
         }
 
-        const results = await Promise.all(data.response.map(async (fixture) => {
-          const homeTeamId = fixture.teams.home.id;
-          const awayTeamId = fixture.teams.away.id;
+        const fixtures = data.response.sort((a, b) =>
+          new Date(a.fixture.date) - new Date(b.fixture.date)
+        );
 
-          const homeMatches = await fetchTeamLastMatches(homeTeamId);
-          const awayMatches = await fetchTeamLastMatches(awayTeamId);
+        fixtures.forEach(fixture => {
+          const gameDiv = document.createElement("div");
+          gameDiv.className = "game";
 
-          if (homeMatches.length === 0 || awayMatches.length === 0) return null;
+          const league = fixture.league?.name || "Competição Desconhecida";
+          const country = fixture.league?.country ? `(${fixture.league.country})` : "";
 
-          const combinedMatches = [...homeMatches, ...awayMatches];
-          const frequentMarkets = analyzeMarkets(combinedMatches);
+          const home = fixture.teams?.home?.name || "Time A";
+          const away = fixture.teams?.away?.name || "Time B";
 
-          return {
-            jogo: `${fixture.teams.home.name} vs ${fixture.teams.away.name}`,
-            mercados: frequentMarkets
-          };
-        }));
+          const homeLogo = fixture.teams?.home?.logo || "";
+          const awayLogo = fixture.teams?.away?.logo || "";
 
-        const filteredResults = results.filter(result => result && result.mercados.length > 0);
+          const homeScore = fixture.goals?.home ?? "-";
+          const awayScore = fixture.goals?.away ?? "-";
 
-        if (filteredResults.length === 0) {
-          resultsDiv.innerHTML = "Nenhum mercado frequente encontrado para os jogos de hoje.";
-          return;
-        }
+          const date = new Date(fixture.fixture.date);
+          const time = date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-        resultsDiv.innerHTML = filteredResults
-          .map(result => `<p>${result.jogo} - Mercados: ${result.mercados.join(", ")}</p>`)
-          .join("");
+          const status = fixture.fixture.status?.short || "NS";
+          const isLive = ["1H", "2H", "LIVE"].includes(status);
+          const statusText = isLive
+            ? `<span class="live">AO VIVO</span>`
+            : status === "FT"
+            ? "Encerrado"
+            : status === "NS"
+            ? `Inicia às ${time}`
+            : status;
 
-        saveResultsToLocalStorage(filteredResults);
+          gameDiv.innerHTML = `
+            <div>
+              <div class="league">${league} ${country}</div>
+              <div class="teams">
+                <div class="team">
+                  <img src="${homeLogo}" alt="${home}">
+                  <span>${home}</span>
+                  <span class="score">${homeScore}</span>
+                </div>
+                <div class="team">
+                  <img src="${awayLogo}" alt="${away}">
+                  <span>${away}</span>
+                  <span class="score">${awayScore}</span>
+                </div>
+              </div>
+              <div class="status">Status: ${statusText}</div>
+            </div>
+          `;
 
+          gamesDiv.appendChild(gameDiv);
+        });
       } catch (error) {
-        console.error("Erro ao buscar resultados:", error);
-        resultsDiv.innerHTML = "Erro ao carregar os jogos. Tente novamente.";
+        console.error("Erro ao buscar os jogos:", error);
+        gamesDiv.innerHTML = "<p class='no-games'>Erro ao carregar os jogos. Tente novamente mais tarde.</p>";
       }
     }
 
-    async function fetchTeamLastMatches(teamId) {
-      const headers = {
-        "X-RapidAPI-Host": "v3.football.api-sports.io",
-        "X-RapidAPI-Key": apiKey
-      };
-
-      try {
-        const response = await fetch(`${apiUrl}?team=${teamId}&status=FT&last=${gameCount}`, { headers });
-        if (!response.ok) {
-          throw new Error(`Erro ao buscar jogos do time ${teamId}: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.response || [];
-      } catch (error) {
-        console.error("Erro ao buscar os jogos do time:", error);
-        return [];
-      }
-    }
-
-    function analyzeMarkets(matches) {
-      const marketCounts = { "+1.5": 0, "+2.5": 0, "Ambos Marcam": 0 };
-      matches.forEach(match => {
-        if (match.goals.home + match.goals.away >= 2) marketCounts["+1.5"]++;
-        if (match.goals.home + match.goals.away >= 3) marketCounts["+2.5"]++;
-        if (match.goals.home > 0 && match.goals.away > 0) marketCounts["Ambos Marcam"]++;
-      });
-
-      return Object.entries(marketCounts)
-        .filter(([_, count]) => (count / matches.length) >= 0.7)
-        .map(([market]) => market);
-    }
-
-    function saveResultsToLocalStorage(results) {
-      localStorage.setItem("gameResults", JSON.stringify(results));
-      alert("Os resultados foram enviados para a página Listas 4.0!");
-    }
-
-    function redirectToListPage() {
-      window.location.href = "listas4.0.html";
-    }
+    fetchGames();
+    setInterval(fetchGames, 300000); // Atualiza a cada 5 minutos
   </script>
 </body>
 </html>
