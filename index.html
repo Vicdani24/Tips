@@ -1,20 +1,740 @@
-biblia_app/
-│
-├── lib/
-│   ├── main.dart
-│   ├── screens/
-│   │     ├── home_screen.dart
-│   │     ├── verse_screen.dart
-│   │     ├── prayer_screen.dart
-│   │     ├── study_screen.dart
-│   │     └── favorites_screen.dart
-│   │
-│   ├── data/
-│   │     ├── verses.dart
-│   │     ├── prayers.dart
-│   │     └── themes.dart
-│   │
-│   └── widgets/
-│         └── menu_button.dart
-│
-└── pubspec.yaml
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Career Mode Tracker</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial, sans-serif;
+}
+
+body{
+background:#0b1120;
+color:white;
+display:flex;
+min-height:100vh;
+}
+
+/* MENU LATERAL */
+
+.sidebar{
+width:240px;
+background:#111827;
+padding:20px;
+display:flex;
+flex-direction:column;
+gap:15px;
+border-right:2px solid #2563eb;
+}
+
+.logo{
+font-size:24px;
+font-weight:bold;
+color:#60a5fa;
+margin-bottom:20px;
+}
+
+.sidebar button{
+padding:15px;
+border:none;
+border-radius:12px;
+background:#1e3a8a;
+color:white;
+cursor:pointer;
+font-size:16px;
+transition:0.3s;
+}
+
+.sidebar button:hover{
+background:#2563eb;
+transform:scale(1.03);
+}
+
+/* CONTEÚDO */
+
+.main{
+flex:1;
+padding:20px;
+}
+
+.section{
+display:none;
+}
+
+.active{
+display:block;
+}
+
+.card{
+background:#111827;
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+border:1px solid #2563eb;
+box-shadow:0 0 15px rgba(37,99,235,0.3);
+}
+
+.card h2{
+margin-bottom:15px;
+color:#60a5fa;
+}
+
+input, select{
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border:none;
+border-radius:10px;
+background:#1f2937;
+color:white;
+font-size:15px;
+}
+
+.main button{
+padding:12px 18px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
+cursor:pointer;
+transition:0.3s;
+margin:5px;
+}
+
+.main button:hover{
+background:#3b82f6;
+}
+
+.stats-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:15px;
+}
+
+.stat-box{
+background:#1f2937;
+padding:20px;
+border-radius:15px;
+text-align:center;
+border:1px solid #2563eb;
+}
+
+.title-buttons{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:10px;
+}
+
+.save-card{
+background:#1f2937;
+padding:15px;
+border-radius:15px;
+margin-bottom:15px;
+border:1px solid #2563eb;
+}
+
+/* MENU MOBILE */
+
+.bottom-nav{
+display:none;
+}
+
+@media(max-width:768px){
+
+body{
+flex-direction:column;
+}
+
+.sidebar{
+display:none;
+}
+
+.bottom-nav{
+display:flex;
+position:fixed;
+bottom:0;
+left:0;
+width:100%;
+background:#111827;
+justify-content:space-around;
+padding:10px;
+border-top:2px solid #2563eb;
+}
+
+.bottom-nav button{
+background:none;
+border:none;
+color:white;
+font-size:14px;
+}
+
+.main{
+padding-bottom:80px;
+}
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- MENU LATERAL -->
+
+<div class="sidebar">
+
+<div class="logo">
+Career Tracker
+</div>
+
+<button onclick="showSection('inicio')">
+Início
+</button>
+
+<button onclick="showSection('novaCarreira')">
+Nova Carreira
+</button>
+
+<button onclick="showSection('dashboard')">
+Dashboard
+</button>
+
+<button onclick="showSection('titulos')">
+Títulos
+</button>
+
+<button onclick="showSection('estatisticas')">
+Estatísticas
+</button>
+
+<button onclick="showSection('historico')">
+Histórico
+</button>
+
+</div>
+
+<!-- CONTEÚDO -->
+
+<div class="main">
+
+<!-- INÍCIO -->
+
+<section id="inicio" class="section active">
+
+<div class="card">
+<h2>Bem-vindo</h2>
+
+<p>
+Seu aplicativo pessoal de carreira FIFA / EA FC.
+</p>
+
+</div>
+
+</section>
+
+<!-- NOVA CARREIRA -->
+
+<section id="novaCarreira" class="section">
+
+<div class="card">
+
+<h2>Nova Carreira</h2>
+
+<select id="tipo">
+
+<option value="Tecnico">
+Técnico
+</option>
+
+<option value="Jogador">
+Jogador
+</option>
+
+</select>
+
+<input type="text" id="saveNome" placeholder="Nome do Save">
+
+<input type="text" id="clube" placeholder="Clube Inicial">
+
+<input type="text" id="temporada" placeholder="Temporada">
+
+<button onclick="criarSave()">
+Criar Carreira
+</button>
+
+</div>
+
+</section>
+
+<!-- DASHBOARD -->
+
+<section id="dashboard" class="section">
+
+<div class="card">
+
+<h2>Dashboard</h2>
+
+<div id="saveAtual"></div>
+
+</div>
+
+<div class="card">
+
+<h2>Editar Estatísticas</h2>
+
+<input type="number" id="jogos" placeholder="Jogos">
+
+<input type="number" id="vitorias" placeholder="Vitórias">
+
+<input type="number" id="empates" placeholder="Empates">
+
+<input type="number" id="derrotas" placeholder="Derrotas">
+
+<input type="number" id="golsMarcados" placeholder="Gols Marcados">
+
+<input type="number" id="golsSofridos" placeholder="Gols Sofridos">
+
+<input type="number" id="overall" placeholder="Overall">
+
+<input type="number" id="gols" placeholder="Gols">
+
+<input type="number" id="assistencias" placeholder="Assistências">
+
+<button onclick="salvarStats()">
+Salvar Estatísticas
+</button>
+
+<button onclick="finalizarTemporada()">
+Finalizar Temporada
+</button>
+
+</div>
+
+</section>
+
+<!-- TÍTULOS -->
+
+<section id="titulos" class="section">
+
+<div class="card">
+
+<h2>Títulos</h2>
+
+<div class="title-buttons">
+
+<button onclick="adicionarTitulo('Nacional')">
+Nacional
+</button>
+
+<button onclick="adicionarTitulo('Copa Nacional')">
+Copa Nacional
+</button>
+
+<button onclick="adicionarTitulo('Libertadores')">
+Libertadores
+</button>
+
+<button onclick="adicionarTitulo('Supercopa Nacional')">
+Supercopa Nacional
+</button>
+
+<button onclick="adicionarTitulo('Champions League')">
+Champions League
+</button>
+
+<button onclick="adicionarTitulo('Europa League')">
+Europa League
+</button>
+
+<button onclick="adicionarTitulo('Supercopa Europeia')">
+Supercopa Europeia
+</button>
+
+<button onclick="adicionarTitulo('Supercopa Sul-Americana')">
+Supercopa Sul-Americana
+</button>
+
+<button onclick="adicionarTitulo('Mundial de Clubes')">
+Mundial de Clubes
+</button>
+
+</div>
+
+<div id="listaTitulos"></div>
+
+</div>
+
+</section>
+
+<!-- ESTATÍSTICAS -->
+
+<section id="estatisticas" class="section">
+
+<div class="card">
+
+<h2>Estatísticas Gerais</h2>
+
+<div class="stats-grid" id="statsGerais"></div>
+
+</div>
+
+</section>
+
+<!-- HISTÓRICO -->
+
+<section id="historico" class="section">
+
+<div class="card">
+
+<h2>Histórico de Temporadas</h2>
+
+<div id="historicoLista"></div>
+
+</div>
+
+</section>
+
+</div>
+
+<!-- MENU MOBILE -->
+
+<div class="bottom-nav">
+
+<button onclick="showSection('inicio')">
+Início
+</button>
+
+<button onclick="showSection('dashboard')">
+Dashboard
+</button>
+
+<button onclick="showSection('titulos')">
+Títulos
+</button>
+
+<button onclick="showSection('estatisticas')">
+Stats
+</button>
+
+<button onclick="showSection('historico')">
+Histórico
+</button>
+
+</div>
+
+<script>
+
+let saves = JSON.parse(localStorage.getItem('careerSaves')) || [];
+
+let currentSave = JSON.parse(localStorage.getItem('currentSave')) || null;
+
+/* TROCAR TELA */
+
+function showSection(id){
+
+document.querySelectorAll('.section').forEach(section=>{
+section.classList.remove('active');
+});
+
+document.getElementById(id).classList.add('active');
+
+}
+
+/* SALVAR */
+
+function salvarLocal(){
+
+localStorage.setItem('careerSaves', JSON.stringify(saves));
+
+localStorage.setItem('currentSave', JSON.stringify(currentSave));
+
+}
+
+/* CRIAR SAVE */
+
+function criarSave(){
+
+const novoSave = {
+
+tipo: document.getElementById('tipo').value,
+
+nome: document.getElementById('saveNome').value,
+
+clube: document.getElementById('clube').value,
+
+temporada: document.getElementById('temporada').value,
+
+jogos:0,
+vitorias:0,
+empates:0,
+derrotas:0,
+golsMarcados:0,
+golsSofridos:0,
+overall:0,
+gols:0,
+assistencias:0,
+
+titulos:[],
+historico:[]
+
+};
+
+saves.push(novoSave);
+
+currentSave = novoSave;
+
+salvarLocal();
+
+atualizarDashboard();
+
+alert('Carreira criada!');
+
+}
+
+/* DASHBOARD */
+
+function atualizarDashboard(){
+
+if(!currentSave) return;
+
+document.getElementById('saveAtual').innerHTML = `
+
+<div class="save-card">
+
+<h3>${currentSave.nome}</h3>
+
+<p><strong>Tipo:</strong> ${currentSave.tipo}</p>
+
+<p><strong>Clube:</strong> ${currentSave.clube}</p>
+
+<p><strong>Temporada:</strong> ${currentSave.temporada}</p>
+
+</div>
+
+`;
+
+atualizarStats();
+
+atualizarTitulos();
+
+atualizarHistorico();
+
+}
+
+/* SALVAR STATS */
+
+function salvarStats(){
+
+if(!currentSave) return;
+
+currentSave.jogos =
+document.getElementById('jogos').value;
+
+currentSave.vitorias =
+document.getElementById('vitorias').value;
+
+currentSave.empates =
+document.getElementById('empates').value;
+
+currentSave.derrotas =
+document.getElementById('derrotas').value;
+
+currentSave.golsMarcados =
+document.getElementById('golsMarcados').value;
+
+currentSave.golsSofridos =
+document.getElementById('golsSofridos').value;
+
+currentSave.overall =
+document.getElementById('overall').value;
+
+currentSave.gols =
+document.getElementById('gols').value;
+
+currentSave.assistencias =
+document.getElementById('assistencias').value;
+
+salvarLocal();
+
+atualizarStats();
+
+alert('Estatísticas salvas!');
+
+}
+
+/* ADICIONAR TÍTULO */
+
+function adicionarTitulo(nome){
+
+if(!currentSave) return;
+
+currentSave.titulos.push({
+
+nome:nome,
+temporada:currentSave.temporada
+
+});
+
+salvarLocal();
+
+atualizarTitulos();
+
+atualizarStats();
+
+}
+
+/* MOSTRAR TÍTULOS */
+
+function atualizarTitulos(){
+
+if(!currentSave) return;
+
+const lista = document.getElementById('listaTitulos');
+
+lista.innerHTML = '';
+
+currentSave.titulos.forEach(titulo=>{
+
+lista.innerHTML += `
+
+<div class="save-card">
+
+🏆 ${titulo.nome} - ${titulo.temporada}
+
+</div>
+
+`;
+
+});
+
+}
+
+/* ESTATÍSTICAS */
+
+function atualizarStats(){
+
+if(!currentSave) return;
+
+document.getElementById('statsGerais').innerHTML = `
+
+<div class="stat-box">
+<h3>Jogos</h3>
+<p>${currentSave.jogos}</p>
+</div>
+
+<div class="stat-box">
+<h3>Vitórias</h3>
+<p>${currentSave.vitorias}</p>
+</div>
+
+<div class="stat-box">
+<h3>Empates</h3>
+<p>${currentSave.empates}</p>
+</div>
+
+<div class="stat-box">
+<h3>Derrotas</h3>
+<p>${currentSave.derrotas}</p>
+</div>
+
+<div class="stat-box">
+<h3>Gols</h3>
+<p>${currentSave.gols}</p>
+</div>
+
+<div class="stat-box">
+<h3>Assistências</h3>
+<p>${currentSave.assistencias}</p>
+</div>
+
+<div class="stat-box">
+<h3>Títulos</h3>
+<p>${currentSave.titulos.length}</p>
+</div>
+
+`;
+
+}
+
+/* FINALIZAR TEMPORADA */
+
+function finalizarTemporada(){
+
+if(!currentSave) return;
+
+currentSave.historico.push({
+
+temporada:currentSave.temporada,
+
+clube:currentSave.clube,
+
+jogos:currentSave.jogos,
+
+gols:currentSave.gols,
+
+assistencias:currentSave.assistencias,
+
+titulos:[...currentSave.titulos]
+
+});
+
+salvarLocal();
+
+atualizarHistorico();
+
+alert('Temporada arquivada!');
+
+}
+
+/* HISTÓRICO */
+
+function atualizarHistorico(){
+
+if(!currentSave) return;
+
+const area =
+document.getElementById('historicoLista');
+
+area.innerHTML = '';
+
+currentSave.historico.forEach(temp=>{
+
+area.innerHTML += `
+
+<div class="save-card">
+
+<h3>${temp.temporada}</h3>
+
+<p><strong>Clube:</strong> ${temp.clube}</p>
+
+<p><strong>Jogos:</strong> ${temp.jogos}</p>
+
+<p><strong>Gols:</strong> ${temp.gols}</p>
+
+<p><strong>Assistências:</strong> ${temp.assistencias}</p>
+
+<p><strong>Títulos:</strong> ${temp.titulos.length}</p>
+
+</div>
+
+`;
+
+});
+
+}
+
+/* INICIAR */
+
+atualizarDashboard();
+
+</script>
+
+</body>
+  </html>
