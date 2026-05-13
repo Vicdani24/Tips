@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Career Mode Tracker</title>
+<title>Meu FIFA</title>
 
 <style>
 
@@ -16,460 +17,266 @@ font-family:Arial, sans-serif;
 }
 
 body{
-background:#0b1120;
+background:#070b14;
 color:white;
 display:flex;
+justify-content:center;
+align-items:center;
 min-height:100vh;
-}
-
-/* MENU LATERAL */
-
-.sidebar{
-width:240px;
-background:#111827;
 padding:20px;
-display:flex;
-flex-direction:column;
-gap:15px;
-border-right:2px solid #2563eb;
 }
+
+/* CONTAINER */
+
+.app{
+width:100%;
+max-width:500px;
+}
+
+/* CARD */
+
+.card{
+background:#111827;
+padding:25px;
+border-radius:25px;
+border:1px solid #2563eb;
+box-shadow:0 0 20px rgba(37,99,235,0.3);
+}
+
+/* TÍTULO */
 
 .logo{
-font-size:24px;
+text-align:center;
+font-size:38px;
 font-weight:bold;
+margin-bottom:35px;
 color:#60a5fa;
-margin-bottom:20px;
 }
 
-.sidebar button{
-padding:15px;
+/* BOTÕES */
+
+.menu-btn{
+width:100%;
+padding:18px;
+margin-bottom:15px;
+border:none;
+border-radius:15px;
+background:#1e3a8a;
+color:white;
+font-size:18px;
+cursor:pointer;
+transition:0.3s;
+}
+
+.menu-btn:hover{
+background:#2563eb;
+transform:scale(1.02);
+}
+
+/* SUBMENU */
+
+.submenu{
+display:none;
+margin-bottom:15px;
+}
+
+.submenu button{
+width:100%;
+padding:14px;
+margin-top:10px;
 border:none;
 border-radius:12px;
-background:#1e3a8a;
+background:#1f2937;
 color:white;
 cursor:pointer;
 font-size:16px;
 transition:0.3s;
 }
 
-.sidebar button:hover{
-background:#2563eb;
-transform:scale(1.03);
+.submenu button:hover{
+background:#374151;
 }
 
-/* CONTEÚDO */
+/* ÁREA */
 
-.main{
-flex:1;
-padding:20px;
-}
-
-.section{
+.area{
 display:none;
+margin-top:25px;
 }
 
-.active{
-display:block;
-}
+/* INPUTS */
 
-.card{
-background:#111827;
-padding:20px;
-border-radius:20px;
-margin-bottom:20px;
-border:1px solid #2563eb;
-box-shadow:0 0 15px rgba(37,99,235,0.3);
-}
-
-.card h2{
-margin-bottom:15px;
-color:#60a5fa;
-}
-
-input, select{
+input{
 width:100%;
-padding:12px;
+padding:14px;
 margin-bottom:12px;
 border:none;
-border-radius:10px;
+border-radius:12px;
 background:#1f2937;
 color:white;
 font-size:15px;
 }
 
-.main button{
-padding:12px 18px;
-border:none;
-border-radius:10px;
-background:#2563eb;
-color:white;
-cursor:pointer;
-transition:0.3s;
-margin:5px;
-}
-
-.main button:hover{
-background:#3b82f6;
-}
-
-.stats-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:15px;
-}
-
-.stat-box{
-background:#1f2937;
-padding:20px;
-border-radius:15px;
-text-align:center;
-border:1px solid #2563eb;
-}
-
-.title-buttons{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:10px;
-}
+/* SAVE */
 
 .save-card{
 background:#1f2937;
 padding:15px;
 border-radius:15px;
-margin-bottom:15px;
+margin-top:12px;
 border:1px solid #2563eb;
 }
 
-/* MENU MOBILE */
-
-.bottom-nav{
-display:none;
+.save-card h3{
+margin-bottom:10px;
+color:#60a5fa;
 }
 
-@media(max-width:768px){
+/* TÍTULOS */
 
-body{
-flex-direction:column;
+.title-grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-top:15px;
 }
 
-.sidebar{
-display:none;
-}
-
-.bottom-nav{
-display:flex;
-position:fixed;
-bottom:0;
-left:0;
-width:100%;
-background:#111827;
-justify-content:space-around;
-padding:10px;
-border-top:2px solid #2563eb;
-}
-
-.bottom-nav button{
-background:none;
+.title-grid button{
+padding:12px;
 border:none;
+border-radius:12px;
+background:#1e3a8a;
 color:white;
-font-size:14px;
+cursor:pointer;
+transition:0.3s;
 }
 
-.main{
-padding-bottom:80px;
-}
-
+.title-grid button:hover{
+background:#2563eb;
 }
 
 </style>
+
 </head>
 
 <body>
 
-<!-- MENU LATERAL -->
-
-<div class="sidebar">
-
-<div class="logo">
-Career Tracker
-</div>
-
-<button onclick="showSection('inicio')">
-Início
-</button>
-
-<button onclick="showSection('novaCarreira')">
-Nova Carreira
-</button>
-
-<button onclick="showSection('dashboard')">
-Dashboard
-</button>
-
-<button onclick="showSection('titulos')">
-Títulos
-</button>
-
-<button onclick="showSection('estatisticas')">
-Estatísticas
-</button>
-
-<button onclick="showSection('historico')">
-Histórico
-</button>
-
-</div>
-
-<!-- CONTEÚDO -->
-
-<div class="main">
-
-<!-- INÍCIO -->
-
-<section id="inicio" class="section active">
+<div class="app">
 
 <div class="card">
-<h2>Bem-vindo</h2>
 
-<p>
-Seu aplicativo pessoal de carreira FIFA / EA FC.
-</p>
-
+<div class="logo">
+Meu FIFA
 </div>
-
-</section>
 
 <!-- NOVA CARREIRA -->
 
-<section id="novaCarreira" class="section">
+<button class="menu-btn" onclick="toggleSubmenu()">
+Nova Carreira
+</button>
 
-<div class="card">
+<div class="submenu" id="submenu">
 
-<h2>Nova Carreira</h2>
-
-<select id="tipo">
-
-<option value="Tecnico">
+<button onclick="abrirCriacao('Tecnico')">
 Técnico
-</option>
+</button>
 
-<option value="Jogador">
+<button onclick="abrirCriacao('Jogador')">
 Jogador
-</option>
-
-</select>
-
-<input type="text" id="saveNome" placeholder="Nome do Save">
-
-<input type="text" id="clube" placeholder="Clube Inicial">
-
-<input type="text" id="temporada" placeholder="Temporada">
-
-<button onclick="criarSave()">
-Criar Carreira
 </button>
 
 </div>
 
-</section>
+<!-- CARREGAR -->
 
-<!-- DASHBOARD -->
-
-<section id="dashboard" class="section">
-
-<div class="card">
-
-<h2>Dashboard</h2>
-
-<div id="saveAtual"></div>
-
-</div>
-
-<div class="card">
-
-<h2>Editar Estatísticas</h2>
-
-<input type="number" id="jogos" placeholder="Jogos">
-
-<input type="number" id="vitorias" placeholder="Vitórias">
-
-<input type="number" id="empates" placeholder="Empates">
-
-<input type="number" id="derrotas" placeholder="Derrotas">
-
-<input type="number" id="golsMarcados" placeholder="Gols Marcados">
-
-<input type="number" id="golsSofridos" placeholder="Gols Sofridos">
-
-<input type="number" id="overall" placeholder="Overall">
-
-<input type="number" id="gols" placeholder="Gols">
-
-<input type="number" id="assistencias" placeholder="Assistências">
-
-<button onclick="salvarStats()">
-Salvar Estatísticas
+<button class="menu-btn" onclick="mostrarCarreiras()">
+Carregar Carreira
 </button>
-
-<button onclick="finalizarTemporada()">
-Finalizar Temporada
-</button>
-
-</div>
-
-</section>
-
-<!-- TÍTULOS -->
-
-<section id="titulos" class="section">
-
-<div class="card">
-
-<h2>Títulos</h2>
-
-<div class="title-buttons">
-
-<button onclick="adicionarTitulo('Nacional')">
-Nacional
-</button>
-
-<button onclick="adicionarTitulo('Copa Nacional')">
-Copa Nacional
-</button>
-
-<button onclick="adicionarTitulo('Libertadores')">
-Libertadores
-</button>
-
-<button onclick="adicionarTitulo('Supercopa Nacional')">
-Supercopa Nacional
-</button>
-
-<button onclick="adicionarTitulo('Champions League')">
-Champions League
-</button>
-
-<button onclick="adicionarTitulo('Europa League')">
-Europa League
-</button>
-
-<button onclick="adicionarTitulo('Supercopa Europeia')">
-Supercopa Europeia
-</button>
-
-<button onclick="adicionarTitulo('Supercopa Sul-Americana')">
-Supercopa Sul-Americana
-</button>
-
-<button onclick="adicionarTitulo('Mundial de Clubes')">
-Mundial de Clubes
-</button>
-
-</div>
-
-<div id="listaTitulos"></div>
-
-</div>
-
-</section>
-
-<!-- ESTATÍSTICAS -->
-
-<section id="estatisticas" class="section">
-
-<div class="card">
-
-<h2>Estatísticas Gerais</h2>
-
-<div class="stats-grid" id="statsGerais"></div>
-
-</div>
-
-</section>
 
 <!-- HISTÓRICO -->
 
-<section id="historico" class="section">
-
-<div class="card">
-
-<h2>Histórico de Temporadas</h2>
-
-<div id="historicoLista"></div>
-
-</div>
-
-</section>
-
-</div>
-
-<!-- MENU MOBILE -->
-
-<div class="bottom-nav">
-
-<button onclick="showSection('inicio')">
-Início
-</button>
-
-<button onclick="showSection('dashboard')">
-Dashboard
-</button>
-
-<button onclick="showSection('titulos')">
-Títulos
-</button>
-
-<button onclick="showSection('estatisticas')">
-Stats
-</button>
-
-<button onclick="showSection('historico')">
+<button class="menu-btn" onclick="mostrarHistorico()">
 Histórico
 </button>
+
+<!-- ÁREA DINÂMICA -->
+
+<div class="area" id="area"></div>
+
+</div>
 
 </div>
 
 <script>
 
-let saves = JSON.parse(localStorage.getItem('careerSaves')) || [];
+/* DADOS */
 
-let currentSave = JSON.parse(localStorage.getItem('currentSave')) || null;
+let saves = JSON.parse(localStorage.getItem('meuFifaSaves')) || [];
 
-/* TROCAR TELA */
+let saveAtual = null;
 
-function showSection(id){
+/* SUBMENU */
 
-document.querySelectorAll('.section').forEach(section=>{
-section.classList.remove('active');
-});
+function toggleSubmenu(){
 
-document.getElementById(id).classList.add('active');
+const submenu =
+document.getElementById('submenu');
 
-}
-
-/* SALVAR */
-
-function salvarLocal(){
-
-localStorage.setItem('careerSaves', JSON.stringify(saves));
-
-localStorage.setItem('currentSave', JSON.stringify(currentSave));
+submenu.style.display =
+submenu.style.display === 'block'
+? 'none'
+: 'block';
 
 }
 
-/* CRIAR SAVE */
+/* CRIAR CARREIRA */
 
-function criarSave(){
+function abrirCriacao(tipo){
 
-const novoSave = {
+const area =
+document.getElementById('area');
 
-tipo: document.getElementById('tipo').value,
+area.style.display = 'block';
 
-nome: document.getElementById('saveNome').value,
+area.innerHTML = `
 
-clube: document.getElementById('clube').value,
+<h2 style="margin-bottom:20px;">
+Nova Carreira - ${tipo}
+</h2>
 
-temporada: document.getElementById('temporada').value,
+<input type="text" id="nomeSave" placeholder="Nome do Save">
+
+<input type="text" id="clube" placeholder="Clube Inicial">
+
+<input type="text" id="temporada" placeholder="Temporada">
+
+<button class="menu-btn"
+onclick="criarSave('${tipo}')">
+
+Criar Carreira
+
+</button>
+
+`;
+
+}
+
+/* SALVAR SAVE */
+
+function criarSave(tipo){
+
+const save = {
+
+tipo: tipo,
+
+nome:
+document.getElementById('nomeSave').value,
+
+clube:
+document.getElementById('clube').value,
+
+temporada:
+document.getElementById('temporada').value,
 
 jogos:0,
 vitorias:0,
@@ -486,208 +293,306 @@ historico:[]
 
 };
 
-saves.push(novoSave);
+saves.push(save);
 
-currentSave = novoSave;
-
-salvarLocal();
-
-atualizarDashboard();
+localStorage.setItem(
+'meuFifaSaves',
+JSON.stringify(saves)
+);
 
 alert('Carreira criada!');
+
+mostrarCarreiras();
+
+}
+
+/* MOSTRAR SAVES */
+
+function mostrarCarreiras(){
+
+const area =
+document.getElementById('area');
+
+area.style.display = 'block';
+
+area.innerHTML = `
+<h2 style="margin-bottom:20px;">
+Carreiras Salvas
+</h2>
+`;
+
+saves.forEach((save,index)=>{
+
+area.innerHTML += `
+
+<div class="save-card">
+
+<h3>${save.nome}</h3>
+
+<p><strong>Tipo:</strong>
+${save.tipo}</p>
+
+<p><strong>Clube:</strong>
+${save.clube}</p>
+
+<p><strong>Temporada:</strong>
+${save.temporada}</p>
+
+<button class="menu-btn"
+onclick="abrirDashboard(${index})">
+
+Abrir Carreira
+
+</button>
+
+</div>
+
+`;
+
+});
 
 }
 
 /* DASHBOARD */
 
-function atualizarDashboard(){
+function abrirDashboard(index){
 
-if(!currentSave) return;
+saveAtual = saves[index];
 
-document.getElementById('saveAtual').innerHTML = `
+const area =
+document.getElementById('area');
+
+area.style.display = 'block';
+
+area.innerHTML = `
+
+<h2 style="margin-bottom:20px;">
+${saveAtual.nome}
+</h2>
 
 <div class="save-card">
 
-<h3>${currentSave.nome}</h3>
+<p><strong>Clube:</strong>
+${saveAtual.clube}</p>
 
-<p><strong>Tipo:</strong> ${currentSave.tipo}</p>
+<p><strong>Temporada:</strong>
+${saveAtual.temporada}</p>
 
-<p><strong>Clube:</strong> ${currentSave.clube}</p>
-
-<p><strong>Temporada:</strong> ${currentSave.temporada}</p>
+<p><strong>Tipo:</strong>
+${saveAtual.tipo}</p>
 
 </div>
 
+<h2 style="margin-top:20px;">
+Estatísticas
+</h2>
+
+<input type="number"
+id="jogos"
+placeholder="Jogos"
+value="${saveAtual.jogos}">
+
+<input type="number"
+id="vitorias"
+placeholder="Vitórias"
+value="${saveAtual.vitorias}">
+
+<input type="number"
+id="empates"
+placeholder="Empates"
+value="${saveAtual.empates}">
+
+<input type="number"
+id="derrotas"
+placeholder="Derrotas"
+value="${saveAtual.derrotas}">
+
+<input type="number"
+id="gols"
+placeholder="Gols"
+value="${saveAtual.gols}">
+
+<input type="number"
+id="assistencias"
+placeholder="Assistências"
+value="${saveAtual.assistencias}">
+
+<input type="number"
+id="overall"
+placeholder="Overall"
+value="${saveAtual.overall}">
+
+<button class="menu-btn"
+onclick="salvarStats(${index})">
+
+Salvar Estatísticas
+
+</button>
+
+<h2 style="margin-top:25px;">
+Títulos
+</h2>
+
+<div class="title-grid">
+
+<button onclick="adicionarTitulo(${index},'Nacional')">
+Nacional
+</button>
+
+<button onclick="adicionarTitulo(${index},'Copa Nacional')">
+Copa Nacional
+</button>
+
+<button onclick="adicionarTitulo(${index},'Libertadores')">
+Libertadores
+</button>
+
+<button onclick="adicionarTitulo(${index},'Supercopa Nacional')">
+Supercopa Nacional
+</button>
+
+<button onclick="adicionarTitulo(${index},'Champions')">
+Champions
+</button>
+
+<button onclick="adicionarTitulo(${index},'Europa League')">
+Europa League
+</button>
+
+<button onclick="adicionarTitulo(${index},'Supercopa Europeia')">
+Supercopa Europeia
+</button>
+
+<button onclick="adicionarTitulo(${index},'Supercopa Sul-Americana')">
+Supercopa Sul-Americana
+</button>
+
+<button onclick="adicionarTitulo(${index},'Mundial')">
+Mundial
+</button>
+
+</div>
+
+<div id="listaTitulos"></div>
+
+<button class="menu-btn"
+style="margin-top:25px;"
+onclick="finalizarTemporada(${index})">
+
+Finalizar Temporada
+
+</button>
+
 `;
 
-atualizarStats();
-
-atualizarTitulos();
-
-atualizarHistorico();
+mostrarTitulos();
 
 }
 
 /* SALVAR STATS */
 
-function salvarStats(){
+function salvarStats(index){
 
-if(!currentSave) return;
-
-currentSave.jogos =
+saves[index].jogos =
 document.getElementById('jogos').value;
 
-currentSave.vitorias =
+saves[index].vitorias =
 document.getElementById('vitorias').value;
 
-currentSave.empates =
+saves[index].empates =
 document.getElementById('empates').value;
 
-currentSave.derrotas =
+saves[index].derrotas =
 document.getElementById('derrotas').value;
 
-currentSave.golsMarcados =
-document.getElementById('golsMarcados').value;
-
-currentSave.golsSofridos =
-document.getElementById('golsSofridos').value;
-
-currentSave.overall =
-document.getElementById('overall').value;
-
-currentSave.gols =
+saves[index].gols =
 document.getElementById('gols').value;
 
-currentSave.assistencias =
+saves[index].assistencias =
 document.getElementById('assistencias').value;
 
-salvarLocal();
+saves[index].overall =
+document.getElementById('overall').value;
 
-atualizarStats();
+localStorage.setItem(
+'meuFifaSaves',
+JSON.stringify(saves)
+);
 
 alert('Estatísticas salvas!');
 
 }
 
-/* ADICIONAR TÍTULO */
+/* TÍTULOS */
 
-function adicionarTitulo(nome){
+function adicionarTitulo(index,titulo){
 
-if(!currentSave) return;
+saves[index].titulos.push({
 
-currentSave.titulos.push({
-
-nome:nome,
-temporada:currentSave.temporada
+nome:titulo,
+temporada:saves[index].temporada
 
 });
 
-salvarLocal();
+localStorage.setItem(
+'meuFifaSaves',
+JSON.stringify(saves)
+);
 
-atualizarTitulos();
-
-atualizarStats();
+mostrarTitulos();
 
 }
 
 /* MOSTRAR TÍTULOS */
 
-function atualizarTitulos(){
+function mostrarTitulos(){
 
-if(!currentSave) return;
+const area =
+document.getElementById('listaTitulos');
 
-const lista = document.getElementById('listaTitulos');
+if(!area) return;
 
-lista.innerHTML = '';
+area.innerHTML = '';
 
-currentSave.titulos.forEach(titulo=>{
+saveAtual.titulos.forEach(titulo=>{
 
-lista.innerHTML += `
+area.innerHTML += `
 
 <div class="save-card">
 
-🏆 ${titulo.nome} - ${titulo.temporada}
+🏆 ${titulo.nome}
+(${titulo.temporada})
 
 </div>
 
 `;
 
 });
-
-}
-
-/* ESTATÍSTICAS */
-
-function atualizarStats(){
-
-if(!currentSave) return;
-
-document.getElementById('statsGerais').innerHTML = `
-
-<div class="stat-box">
-<h3>Jogos</h3>
-<p>${currentSave.jogos}</p>
-</div>
-
-<div class="stat-box">
-<h3>Vitórias</h3>
-<p>${currentSave.vitorias}</p>
-</div>
-
-<div class="stat-box">
-<h3>Empates</h3>
-<p>${currentSave.empates}</p>
-</div>
-
-<div class="stat-box">
-<h3>Derrotas</h3>
-<p>${currentSave.derrotas}</p>
-</div>
-
-<div class="stat-box">
-<h3>Gols</h3>
-<p>${currentSave.gols}</p>
-</div>
-
-<div class="stat-box">
-<h3>Assistências</h3>
-<p>${currentSave.assistencias}</p>
-</div>
-
-<div class="stat-box">
-<h3>Títulos</h3>
-<p>${currentSave.titulos.length}</p>
-</div>
-
-`;
 
 }
 
 /* FINALIZAR TEMPORADA */
 
-function finalizarTemporada(){
+function finalizarTemporada(index){
 
-if(!currentSave) return;
+saves[index].historico.push({
 
-currentSave.historico.push({
+temporada:saves[index].temporada,
 
-temporada:currentSave.temporada,
+clube:saves[index].clube,
 
-clube:currentSave.clube,
+gols:saves[index].gols,
 
-jogos:currentSave.jogos,
+assistencias:saves[index].assistencias,
 
-gols:currentSave.gols,
-
-assistencias:currentSave.assistencias,
-
-titulos:[...currentSave.titulos]
+titulos:[...saves[index].titulos]
 
 });
 
-salvarLocal();
-
-atualizarHistorico();
+localStorage.setItem(
+'meuFifaSaves',
+JSON.stringify(saves)
+);
 
 alert('Temporada arquivada!');
 
@@ -695,32 +600,43 @@ alert('Temporada arquivada!');
 
 /* HISTÓRICO */
 
-function atualizarHistorico(){
-
-if(!currentSave) return;
+function mostrarHistorico(){
 
 const area =
-document.getElementById('historicoLista');
+document.getElementById('area');
 
-area.innerHTML = '';
+area.style.display = 'block';
 
-currentSave.historico.forEach(temp=>{
+area.innerHTML = `
+<h2 style="margin-bottom:20px;">
+Histórico
+</h2>
+`;
+
+saves.forEach(save=>{
+
+save.historico.forEach(temp=>{
 
 area.innerHTML += `
 
 <div class="save-card">
 
-<h3>${temp.temporada}</h3>
+<h3>${save.nome}</h3>
 
-<p><strong>Clube:</strong> ${temp.clube}</p>
+<p><strong>Temporada:</strong>
+${temp.temporada}</p>
 
-<p><strong>Jogos:</strong> ${temp.jogos}</p>
+<p><strong>Clube:</strong>
+${temp.clube}</p>
 
-<p><strong>Gols:</strong> ${temp.gols}</p>
+<p><strong>Gols:</strong>
+${temp.gols}</p>
 
-<p><strong>Assistências:</strong> ${temp.assistencias}</p>
+<p><strong>Assistências:</strong>
+${temp.assistencias}</p>
 
-<p><strong>Títulos:</strong> ${temp.titulos.length}</p>
+<p><strong>Títulos:</strong>
+${temp.titulos.length}</p>
 
 </div>
 
@@ -728,13 +644,11 @@ area.innerHTML += `
 
 });
 
+});
+
 }
-
-/* INICIAR */
-
-atualizarDashboard();
 
 </script>
 
 </body>
-  </html>
+</html>
